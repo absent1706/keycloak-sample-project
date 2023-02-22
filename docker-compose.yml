@@ -5,21 +5,22 @@ services:
     build:
       context: .
       args: &keycloak-env-vars-needed-for-build
-        KEYCLOAK_ADMIN: admin
-        KEYCLOAK_ADMIN_PASSWORD: change_me
-        KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-        KC_DB_USERNAME: keycloak
-        KC_DB_PASSWORD: admin
-        KC_HOSTNAME: localhost
         KC_DB: postgres
+        KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+        KC_DB_USERNAME: ${POSTGRES_USER}
+        KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+        KC_HOSTNAME: localhost
     command: start-dev
     environment:
       <<: *keycloak-env-vars-needed-for-build
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USERNAME}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
       #JDBC_PARAMS: "ssl=true"
     depends_on:
       - postgres
     ports:
+      - 8080:8080
       - 8443:8443
 
   postgres:
@@ -27,8 +28,8 @@ services:
     volumes:
       - ./mount/db/keycloack-db:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - 5432:5432
